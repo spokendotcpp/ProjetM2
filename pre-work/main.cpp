@@ -57,6 +57,87 @@ char* read_3DS_file(const char* filename)
     }
 }
 
+
+
+
+
+
+/*
+Defines of the main chunks we need to read datas
+*/
+#define MAIN_CHUNK      0x4D4D
+#define EDITOR_CHUNK    0x3D3D
+#define OBJECT_CHUNK    0x4000
+#define MESH_CHUNK      0x4100
+#define VERTICES_CHUNK  0x4110
+#define FACES_CHUNK     0x4120
+
+// https://baptiste-wicht.com/posts/2011/06/write-and-read-binary-files-in-c.html
+template<typename T>
+std::istream& binary_read(std::istream& stream, T& value)
+{
+    return stream.read(reinterpret_cast<char*>(&value), sizeof(T));
+}
+
+typedef struct Chunk {
+    unsigned short id;
+    unsigned int length;
+} Chunk;
+
+std::istream& operator >> (std::istream& is, Chunk& chunk)
+{
+    binary_read(is, chunk.id);
+    binary_read(is, chunk.length);
+    return is;
+}
+
+std::ostream& operator << (std::ostream& os, const Chunk& chunk)
+{
+    os << "CHUNK ID: " << chunk.id << " | CHUNK LENGTH: " << chunk.length << std::endl;
+    return os;
+}
+
+int main(int argc, char** argv)
+{
+    if( argc != 2 ){
+        std::cerr << "Usage" << std::endl;
+        return EXIT_FAILURE;
+    }
+
+    Chunk* chunk = new Chunk();
+
+    // Open file in reading & binary mode
+    std::ifstream file(argv[1]);
+    if( file.is_open() ){
+        std::cerr << "OPEN" << std::endl;
+
+        // Process reading of 3DS File
+        while( !file.eof() )
+        {
+            file >> *chunk;
+            std::cerr << *chunk << std::endl;
+
+            switch( chunk->id )
+            {
+                case MAIN_CHUNK:
+                    std::cerr << "MAIN FOUND" << std::endl;
+                break;
+            }
+
+            break;
+        }
+
+        file.close();
+    }
+    else {
+        std::cerr << "Failed to read " << argv[1] << " file." << std::endl;
+    }
+
+    delete chunk;
+    return EXIT_SUCCESS;
+}
+
+/*
 int main(int argc, char** argv)
 {
     std::ifstream file;
@@ -126,3 +207,4 @@ int main(int argc, char** argv)
 
     return EXIT_SUCCESS;
 }
+*/
