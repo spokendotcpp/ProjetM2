@@ -30,37 +30,6 @@ bool contains_3DS_extension(const char* filename)
     return true;
 }
 
-/*
-* Read a 3DS file into memory.
-*/
-char* read_3DS_file(const char* filename)
-{
-    if( !contains_3DS_extension(filename) ){
-        std::cerr << "Will not read this file, it does not contain the 3DS file extension." << std::endl;
-        return nullptr;
-    }
-
-    // Open file in reading mode + seek end directly.
-    std::ifstream file(filename, std::ios::binary | std::ios::ate);
-    std::streampos filesize = file.tellg();
-
-    if( file.is_open() ){
-        char* bytes = new char[filesize];
-        file.seekg(0, std::ios::beg);
-        file.read(bytes, filesize);
-        file.close();
-        return bytes;
-    }
-    else {
-        std::cerr << "Unable to open file" << std::endl;
-        return nullptr;
-    }
-}
-
-
-
-
-
 
 /*
 Defines of the main chunks we need to read datas
@@ -93,8 +62,20 @@ std::istream& operator >> (std::istream& is, Chunk& chunk)
 
 std::ostream& operator << (std::ostream& os, const Chunk& chunk)
 {
-    os << "CHUNK ID: " << chunk.id << " | CHUNK LENGTH: " << chunk.length << std::endl;
+    os << "CHUNK ID: " << std::hex << chunk.id;
+    os << " | CHUNK LENGTH: " << std::dec << chunk.length;
     return os;
+}
+
+void read_object_name(std::istream& is, char name[20])
+{
+    unsigned short i = 0;
+    char c;
+
+    do {
+        binary_read(is, c);
+        name[i++] = c;
+    } while( c != '\0' && i < 20 );
 }
 
 int main(int argc, char** argv)
@@ -106,25 +87,70 @@ int main(int argc, char** argv)
 
     Chunk* chunk = new Chunk();
 
+    char object_name[20];
+    unsigned short quantity;
+    unsigned short i;
+    float value;
+
     // Open file in reading & binary mode
-    std::ifstream file(argv[1]);
+    std::ifstream file(argv[1], std::ios::binary | std::ios::ate );
     if( file.is_open() ){
-        std::cerr << "OPEN" << std::endl;
+
+        long fsize = file.tellg();
+        file.seekg(0, std::ios::beg);
 
         // Process reading of 3DS File
-        while( !file.eof() )
+        while( file.tellg() < fsize )
         {
             file >> *chunk;
             std::cerr << *chunk << std::endl;
+            std::cerr << "Position: " << file.tellg() << std::endl;
 
             switch( chunk->id )
             {
-                case MAIN_CHUNK:
-                    std::cerr << "MAIN FOUND" << std::endl;
+                case MAIN_CHUNK: 
+                    // nothing to do here, 0 bytes to read
+                    std::cerr << "MAIN" << std::endl;
                 break;
-            }
 
-            break;
+                case EDITOR_CHUNK: 
+                    // nothing to do here, 0 bytes to read
+                    std::cerr << "EDITOR" << std::endl;
+                break;
+
+                case OBJECT_CHUNK:
+                    std::cerr << "OBJECT" << std::endl;
+                    read_object_name(file, object_name);
+                    std::cerr << object_name << std::endl;
+                break;
+
+                case MESH_CHUNK:
+                    std::cerr << "MESH" << std::endl;
+                break;
+
+                case VERTICES_CHUNK:
+                    std::cerr << "VERTICES" << std::endl;
+                    binary_read(file, quantity);
+                    for(i=0; i < quantity; ++i){
+                        std::cerr << i << " ";
+                        binary_read(file, value); std::cerr << " x: " << value;
+                        binary_read(file, value); std::cerr << " y: " << value;
+                        binary_read(file, value); std::cerr << " z: " << value << std::endl;
+                    }
+                break;
+
+                /*
+                case FACES_CHUNK:
+                    std::cerr << "FACES" << std::endl;
+
+                break;
+                */
+
+                default:
+                    // Move forward from the current position by the current chunk length 
+                    // minus the (2bytes ID + 4bytes length) already read.
+                    file.seekg(chunk->length-6, std::ios::cur);
+            }
         }
 
         file.close();
@@ -136,75 +162,3 @@ int main(int argc, char** argv)
     delete chunk;
     return EXIT_SUCCESS;
 }
-
-/*
-int main(int argc, char** argv)
-{
-    std::ifstream file;
-    std::streampos size;
-    char* bytes = nullptr;
-    const char* filename = nullptr;
-
-    if( argc != 2 ){
-        std::cerr << "Usage." << std::endl;
-        return EXIT_FAILURE;
-    }
-
-    filename = argv[1];
-
-    bytes = read_3DS_file(filename);
-
-    // Now process data
-    if( bytes != nullptr ){
-        // https://en.wikipedia.org/wiki/.3ds
-        // Check first Chunk
-
-        char chunk[2];
-        chunk[0] = bytes[0];
-        chunk[1] = bytes[1];
-
-        char chunk_len[4];
-        chunk_len[0] = bytes[2];
-        chunk_len[1] = bytes[3];
-        chunk_len[2] = bytes[4];
-        chunk_len[3] = bytes[5];
-
-        if( strcmp(chunk, "0x4D4D") ){
-            std::cerr << "YOUHOU" << std::endl;
-        }
-
-        long offset = strtol(chunk_len, NULL, 0);
-        std::cerr << "Offset: " << offset << std::endl;
-
-
-        char chunk_2[2];
-        chunk_2[0] = bytes[6];
-        chunk_2[1] = bytes[7];
-
-        if( strcmp(chunk_2, "0x3D3D") ){
-            std::cerr << "YOUHOU NUMBER 2" << std::endl;
-        }
-
-        chunk_len[0] = bytes[8];
-        chunk_len[1] = bytes[9];
-        chunk_len[2] = bytes[10];
-        chunk_len[3] = bytes[11];
-
-        std::cerr << "Offset n°2: " << strtol(chunk_len, NULL, 0) << std::endl;
-
-        chunk[0] = bytes[12];
-        chunk[1] = bytes[13];
-
-        if( strcmp(chunk, "0x4000") ){
-            std::cerr << "YOUHOU NUMBER 3" << std::endl;
-        }
-    }
-    
-    if( bytes != nullptr ){
-        delete [] bytes;
-        bytes = nullptr;
-    }
-
-    return EXIT_SUCCESS;
-}
-*/

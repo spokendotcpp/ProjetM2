@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>941</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>600</width>
+    <height>500</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <property name="animated">
+   <bool>true</bool>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <layout class="QHBoxLayout" name="horizontalLayout">
+    <item>
+     <layout class="QVBoxLayout" name="left_layout">
+      <item>
+       <widget class="MeshViewerWidget" name="viewer">
+        <property name="focusPolicy">
+         <enum>Qt::StrongFocus</enum>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <widget class="QGroupBox" name="verticalGroupBox">
+      <property name="maximumSize">
+       <size>
+        <width>200</width>
+        <height>16777215</height>
+       </size>
+      </property>
+      <property name="title">
+       <string>Field Options</string>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <widget class="QSpinBox" name="spinbox_size">
+         <property name="acceptDrops">
+          <bool>true</bool>
+         </property>
+         <property name="prefix">
+          <string>Size: </string>
+         </property>
+         <property name="minimum">
+          <number>2</number>
+         </property>
+         <property name="maximum">
+          <number>16</number>
+         </property>
+         <property name="value">
+          <number>8</number>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QDoubleSpinBox" name="spinbox_width">
+         <property name="acceptDrops">
+          <bool>true</bool>
+         </property>
+         <property name="prefix">
+          <string>Width: </string>
+         </property>
+         <property name="maximum">
+          <double>9999.000000000000000</double>
+         </property>
+         <property name="value">
+          <double>50.000000000000000</double>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QDoubleSpinBox" name="spinbox_length">
+         <property name="acceptDrops">
+          <bool>true</bool>
+         </property>
+         <property name="prefix">
+          <string>Length: </string>
+         </property>
+         <property name="suffix">
+          <string/>
+         </property>
+         <property name="maximum">
+          <double>9999.000000000000000</double>
+         </property>
+         <property name="value">
+          <double>50.000000000000000</double>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QDoubleSpinBox" name="spinbox_height">
+         <property name="acceptDrops">
+          <bool>true</bool>
+         </property>
+         <property name="prefix">
+          <string>Height: </string>
+         </property>
+         <property name="maximum">
+          <double>9999.000000000000000</double>
+         </property>
+         <property name="value">
+          <double>40.000000000000000</double>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="button_generate">
+         <property name="text">
+          <string>Generate</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <spacer name="horizontalSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QLCDNumber" name="fps">
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
+           </property>
+           <property name="segmentStyle">
+            <enum>QLCDNumber::Flat</enum>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>FPS</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>941</width>
+     <height>30</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menu_render">
+    <property name="title">
+     <string>Re&amp;nder</string>
+    </property>
+    <widget class="QMenu" name="menu_smooth">
+     <property name="title">
+      <string>&amp;Smooth</string>
+     </property>
+     <addaction name="action_smooth"/>
+     <addaction name="action_flat"/>
+    </widget>
+    <addaction name="menu_smooth"/>
+   </widget>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>Fi&amp;le</string>
+    </property>
+    <addaction name="actionLoadMesh"/>
+    <addaction name="separator"/>
+    <addaction name="action_quit"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menu_render"/>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+  <action name="actionLoad_OBJ">
+   <property name="text">
+    <string>&amp;Load OBJ</string>
+   </property>
+  </action>
+  <action name="actionExit">
+   <property name="text">
+    <string>&amp;Exit</string>
+   </property>
+  </action>
+  <action name="actionLaplace_Beltrami">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Laplace-Beltrami</string>
+   </property>
+  </action>
+  <action name="action_smooth">
+   <property name="text">
+    <string>&amp;Active</string>
+   </property>
+  </action>
+  <action name="action_flat">
+   <property name="text">
+    <string>&amp;Flat</string>
+   </property>
+  </action>
+  <action name="action_quit">
+   <property name="text">
+    <string>Quit</string>
+   </property>
+  </action>
+  <action name="action_wireframe">
+   <property name="text">
+    <string>On/Off</string>
+   </property>
+  </action>
+  <action name="actionLoadMesh">
+   <property name="text">
+    <string>Import Mesh</string>
+   </property>
+  </action>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>MeshViewerWidget</class>
+   <extends>QOpenGLWidget</extends>
+   <header>include/meshviewerwidget.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
