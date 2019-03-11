@@ -131,6 +131,7 @@ public:
     long microseconds_diff(Clock::time_point t1, Clock::time_point t2);
 
     /* ********************************************* */
+public slots:
     /* Load an OBJ file from disk to the viewer */
     void load_off_file(const std::string& str);
 

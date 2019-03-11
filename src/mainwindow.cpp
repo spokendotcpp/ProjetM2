@@ -60,17 +60,16 @@ MainWindow::connect_signals_and_slots()
     connect(ui->action_quit, &QAction::triggered, this, &QMainWindow::close);  // QUIT APP
 
     // Render Flat or Smooth
-    connect(ui->action_flat, &QAction::triggered, ui->viewer, [this]{ ui->viewer->smooth_render(false); });
-    connect(ui->action_smooth, &QAction::triggered, ui->viewer, [this]{ ui->viewer->smooth_render(true); });
+    connect(ui->action_flat, &QAction::triggered, this, [=](){ ui->viewer->smooth_render(false); });
+    connect(ui->action_smooth, &QAction::triggered, this, [=](){ ui->viewer->smooth_render(true); });
 
-    connect(ui->actionLoadMesh, &QAction::triggered, ui->viewer, [this]{
+    connect(ui->actionLoadMesh, &QAction::triggered, this, [=](){
         QString file = QFileDialog::getOpenFileName(
-            this, "Load a Mesh file", "..", "Mesh files (*.off, *.obj)",
+            this, "Load a Mesh file", "..", "Mesh files (*.off *.obj)",
             nullptr, QFileDialog::DontUseNativeDialog
         );
 
-        if( !file.isEmpty() ){
+        if( !file.isEmpty() )
        	    ui->viewer->load_off_file(file.toStdString());
-        }
     });
 }

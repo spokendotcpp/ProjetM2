@@ -164,7 +164,7 @@ MeshViewerWidget::initializeGL()
 
     glClearColor(1.0f, 200.0f/255.0f, 200.0f/255.0f, 1.0f);
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
+    // glEnable(GL_CULL_FACE);
     glDepthFunc(GL_LESS);
     glPolygonMode(GL_FRONT, GL_FILL);
 
@@ -368,6 +368,22 @@ MeshViewerWidget::handle_key_events(QKeyEvent* event)
 
         doneCurrent();
         break;
+
+    case Qt::Key_C :
+        makeCurrent();
+
+        glGetIntegerv(GL_CULL_FACE, &mode);
+
+        if( mode ){
+            glDisable(GL_CULL_FACE);
+        }
+        else {
+            glEnable(GL_CULL_FACE);
+        }
+
+        doneCurrent();
+        break;
+
     }
 
     update();
@@ -439,8 +455,6 @@ MeshViewerWidget::reset_view()
 void
 MeshViewerWidget::load_off_file(const std::string& str)
 {
-    std::cerr << str << std::endl;
-
     MeshObject* new_mesh = new MeshObject(str);
     
     if( new_mesh != nullptr ){
@@ -448,6 +462,7 @@ MeshViewerWidget::load_off_file(const std::string& str)
             delete mesh;
 
         mesh = new_mesh;
+
         makeCurrent();
         {
             program->bind();

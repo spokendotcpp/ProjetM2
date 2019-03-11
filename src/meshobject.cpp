@@ -5,17 +5,23 @@
 MeshObject::MeshObject(const std::string& filename)
     :DrawableObject()
 {
-    mesh.request_vertex_normals();
     mesh.request_face_normals();
+    mesh.request_vertex_normals();
 
-    if( OpenMesh::IO::read_mesh(mesh, filename) ){
-        // normalize();
-        // mesh.update_face_normals();
-        // mesh.update_vertex_normals();
+    try {
+        if( OpenMesh::IO::read_mesh(mesh, filename) ){
+            normalize();
+            mesh.update_face_normals();
+            mesh.update_vertex_normals();
+        }
+        else {
+            std::cerr << "Failed to read " << filename << std::endl;
+        }
     }
-    else {
-        std::cerr << "Failed to read " << filename << std::endl;
+    catch( std::exception &e ){
+        std::cerr << e.what() << std::endl;
     }
+
 }
 
 MeshObject::~MeshObject()
@@ -65,7 +71,7 @@ MeshObject::build(QOpenGLShaderProgram* program)
     set_vertices_colors(program->attributeLocation("color"), colors);
     set_vertices_normals(program->attributeLocation("normal"), normals);
 
-    return initialize(nb_vertices, nb_vertices, 3);
+    return initialize(mesh.n_vertices(), nb_indices, 3);
 }
 
 void
