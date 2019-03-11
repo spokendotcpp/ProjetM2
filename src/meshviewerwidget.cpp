@@ -442,10 +442,8 @@ MeshViewerWidget::load_off_file(const std::string& str)
     std::cerr << str << std::endl;
 
     MeshObject* new_mesh = new MeshObject(str);
-    delete new_mesh;
-
-
-    /*if( new_mesh != nullptr ){
+    
+    if( new_mesh != nullptr ){
         if( mesh != nullptr )
             delete mesh;
 
@@ -454,11 +452,11 @@ MeshViewerWidget::load_off_file(const std::string& str)
         {
             program->bind();
             {
-                // mesh->build(program);
-                // mesh->update_buffers(program);
+                mesh->build(program);
+                mesh->update_buffers(program);
             }
             program->release();
         }
         doneCurrent();
-    }*/
+    }
 }

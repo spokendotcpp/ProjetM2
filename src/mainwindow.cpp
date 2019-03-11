@@ -70,7 +70,7 @@ MainWindow::connect_signals_and_slots()
         );
 
         if( !file.isEmpty() ){
-            // ui->viewer->load_off_file(file.toStdString());
+       	    ui->viewer->load_off_file(file.toStdString());
         }
     });
 }
