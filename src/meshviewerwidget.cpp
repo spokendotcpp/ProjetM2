@@ -94,12 +94,10 @@ MeshViewerWidget::update_projection()
 void
 MeshViewerWidget::default_view()
 {
-    view = QMatrix4x4();
-
     rotation = QMatrix4x4();
     rotation.rotate(0.0f, 1.0f, 1.0f, 1.0f);
 
-    position = QVector3D(0.0f, 0.0f, -20.0f);
+    position = QVector3D(0.0f, 0.0f, -2.0f);
     update_view();
 }
 
@@ -107,8 +105,7 @@ MeshViewerWidget::default_view()
 void
 MeshViewerWidget::default_projection()
 {
-    projection = QMatrix4x4();
-    fov = 45.0f;
+    fov = 60.0f;
     zNear = 0.1f;
     zFar = 1000.0f;
     update_projection();
@@ -162,11 +159,11 @@ MeshViewerWidget::initializeGL()
     }
     program->release();
 
-    glClearColor(1.0f, 200.0f/255.0f, 200.0f/255.0f, 1.0f);
+    glClearColor(77.0f/255.0f, 105.0f/255.0f, 198.0f/255.0f, 1.0f);
     glEnable(GL_DEPTH_TEST);
-    // glEnable(GL_CULL_FACE);
+    glEnable(GL_CULL_FACE);
     glDepthFunc(GL_LESS);
-    glPolygonMode(GL_FRONT, GL_FILL);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     default_ModelViewPosition();
 
@@ -193,7 +190,7 @@ MeshViewerWidget::paintGL()
 
     if( mcs < frequency ){
         std::this_thread::sleep_for(
-            std::chrono::microseconds(frequency - mcs)
+            std::chrono::microseconds(frequency - (mcs + 100))
         );
     }
 
@@ -211,10 +208,12 @@ MeshViewerWidget::paintGL()
         program->setUniformValue("view", view);
         program->setUniformValue("view_inverse", view.transposed().inverted());
 
+
         light->off(program);            // turn off the light
         axis->show(program, GL_LINES);  // draw axis
         light->on(program);             // turn on the light
 
+        // In case user imported a mesh into the viewer, display it.
         if( mesh != nullptr ){
             mesh->show(program, GL_TRIANGLES);
         }
@@ -229,13 +228,10 @@ MeshViewerWidget::mouseMoveEvent(QMouseEvent* event)
     QPoint pos = event->pos();
 
     if( mouse_pressed ){
-        // The new rotation equals arcball rotation * the last rotation.
+        // The new rotation equals arcball rotation * the previous.
         rotation = arcball->get_rotation_matrix(
             pos.x(), pos.y(), mouse.x(), mouse.y()
         ) * rotation;
-
-        update_view();
-        update();
     }
     else
     if( wheel_pressed ){
@@ -243,12 +239,11 @@ MeshViewerWidget::mouseMoveEvent(QMouseEvent* event)
 
         position.setX(position.x() - ((pos.x() - mouse.x())*step));
         position.setY(position.y() + ((pos.y() - mouse.y())*step));
-
-        update_view();
-        update();
     }
 
     mouse = pos;
+    update_view();
+    update();
 }
 
 void
@@ -281,9 +276,8 @@ MeshViewerWidget::timerEvent(QTimerEvent* event)
 {
     int id = event->timerId();
 
-
     if( id == timer_id_0 ){
-        // update();
+        update();
     }
 }
 
@@ -294,26 +288,12 @@ MeshViewerWidget::timerEvent(QTimerEvent* event)
 void
 MeshViewerWidget::wheelEvent(QWheelEvent* event)
 {
-    float z = position.z();
-    float step = 0.001f * event->delta();
-    if( step < 0 ) step *= -1.0f;
+    float speed = 0.5f;
+    float step = (event->delta() * speed) * (position.z() / (zFar-zNear));
 
-    /* Wheel go down */
-    if( event->delta() < 0 ){
-        if( -z < (zFar-step) ){
-            position.setZ(z-step);
-            update_view();
-            update();
-        }
-    }
-    /* Wheel go up */
-    else {
-        if( -z > (zNear+step) ){
-            position.setZ(z+step);
-            update_view();
-            update();
-        }
-    }
+    position.setZ(position.z() - step);
+    update_view();
+    update();
 }
 
 void
@@ -384,6 +364,20 @@ MeshViewerWidget::handle_key_events(QKeyEvent* event)
         doneCurrent();
         break;
 
+
+    case Qt::Key_S :
+        makeCurrent();
+
+        uchar* pixels = new uchar[ width() * height() * 4 ];
+        glReadPixels(0, 0, width(), height(), GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+
+        QImage image(pixels, width(), height(), QImage::Format_RGBA8888);
+        image = image.mirrored(false, true);
+        image = image.scaled(width()/4, height()/4, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+        image.save("test.png", nullptr, 100);
+
+        doneCurrent();
+        break;
     }
 
     update();
@@ -455,20 +449,21 @@ MeshViewerWidget::reset_view()
 void
 MeshViewerWidget::load_off_file(const std::string& str)
 {
-    MeshObject* new_mesh = new MeshObject(str);
-    
-    if( new_mesh != nullptr ){
-        if( mesh != nullptr )
-            delete mesh;
+    MeshObject* mesh = new MeshObject(str);
 
-        mesh = new_mesh;
+    if( mesh != nullptr ){
+        if( this->mesh != nullptr )
+            delete this->mesh;
+
+        this->mesh = mesh;
 
         makeCurrent();
         {
             program->bind();
             {
-                mesh->build(program);
-                mesh->update_buffers(program);
+                this->mesh->build(program);
+                this->mesh->use_unique_color(0.8f, 0.5f, 0.2f);
+                this->mesh->update_buffers(program);
             }
             program->release();
         }

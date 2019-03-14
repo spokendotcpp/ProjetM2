@@ -7,7 +7,7 @@ MainWindow::MainWindow(QWidget *parent):
     QMainWindow(parent), ui(new Ui::MainWindow())
 {
     ui->setupUi(this);
-    ui->viewer->set_frames_per_second(9999);
+    ui->viewer->set_frames_per_second(144);
 
     this->setWindowTitle("Viewer");
     this->resize(1280, 720);
@@ -70,6 +70,6 @@ MainWindow::connect_signals_and_slots()
         );
 
         if( !file.isEmpty() )
-       	    ui->viewer->load_off_file(file.toStdString());
+            ui->viewer->load_off_file(file.toStdString());
     });
 }

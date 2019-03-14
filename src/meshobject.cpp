@@ -8,20 +8,14 @@ MeshObject::MeshObject(const std::string& filename)
     mesh.request_face_normals();
     mesh.request_vertex_normals();
 
-    try {
-        if( OpenMesh::IO::read_mesh(mesh, filename) ){
-            normalize();
-            mesh.update_face_normals();
-            mesh.update_vertex_normals();
-        }
-        else {
-            std::cerr << "Failed to read " << filename << std::endl;
-        }
+    if( OpenMesh::IO::read_mesh(mesh, filename) ){
+        normalize();
+        mesh.update_face_normals();
+        mesh.update_vertex_normals();
     }
-    catch( std::exception &e ){
-        std::cerr << e.what() << std::endl;
+    else {
+        std::cerr << "Failed to read " << filename << std::endl;
     }
-
 }
 
 MeshObject::~MeshObject()
@@ -97,7 +91,7 @@ MeshObject::normalize()
         max_z = std::max(max_z, p[2]);
     }
 
-    MyMesh::Point pos( min_x+max_x, min_y+max_y, min_z+max_z);
+    MyMesh::Point pos(min_x+max_x, min_y+max_y, min_z+max_z);
     pos *= 0.5f;
 
     MyMesh::Point size = MyMesh::Point(0.0f, 0.0f, 0.0f);

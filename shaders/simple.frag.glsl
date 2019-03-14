@@ -43,7 +43,7 @@ void main()
 
             vec3 ambient = light_ambient * light_color;
             vec3 diffuse = light_color * cosTheta;
-            vec3 specular = light_color * pow(cosAlpha, 128);
+            vec3 specular = light_color * pow(cosAlpha, 32) * 0.1f;
 
             color = vec4((ambient + diffuse + specular) * fragment_color, 1.0f);
         }

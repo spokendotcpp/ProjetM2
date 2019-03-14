@@ -16,6 +16,7 @@
 #include <QOpenGLBuffer>
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLShaderProgram>
+#include <QOpenGLFramebufferObject>
 
 #include <QMatrix4x4>
 #include <QInputDialog>

@@ -25,6 +25,11 @@ DrawableObject::DrawableObject():
 
 DrawableObject::~DrawableObject()
 {
+    if( model != nullptr ){
+        delete model;
+        model = nullptr;
+    }
+
     free_vertices_colors();
     free_vertices_normals();
     free_vertices_geometry();

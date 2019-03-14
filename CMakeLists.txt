@@ -31,13 +31,13 @@ find_package(OpenGL REQUIRED)
 # FIND OPENMESH LIBRARIES
 find_library(
     LIB_OPENMESH_CORE
-    NAMES libOpenMeshCore.so
+    NAMES libOpenMeshCore.so.7.1
     HINTS "libs/OpenMesh-7.1/lib"
 )
 
 find_library(
     LIB_OPENMESH_TOOLS
-    NAMES libOpenMeshTools.so
+    NAMES libOpenMeshTools.so.7.1
     HINTS "libs/OpenMesh-7.1/lib"
 )
 

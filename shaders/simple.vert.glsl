@@ -33,22 +33,22 @@ void main()
     // vertex position into MVP space
     gl_Position = projection * view * model * vec4(position, 1.0f);
 
-    if( !wireframe_on ){
-        if( light_on ){
-            // vertex position into view space
-            position_view  = vec3(view * model * vec4(position, 1.0f));
+    if( light_on ){
+        // vertex position into view space
+        position_view  = vec3(view * model * vec4(position, 1.0f));
 
-            // light position into view space
-            vec3 light_position_view = vec3(view * vec4(light_position, 1.0f));
+        // light position into view space
+        //vec3 light_position_view = vec3(view * vec4(light_position, 1.0f));
+        vec3 light_position_view = light_position;
 
-            // light_direction
-            light_direction = light_position_view - position_view;
 
-            // vertex normal into view
-            if( smooth_on )
-                vertex_normal = mat3(view_inverse * model_inverse) * normal;
-        }
+        // light_direction
+        light_direction = light_position_view - position_view;
 
-        fragment_color = color;
+        // vertex normal into view
+        if( smooth_on )
+            vertex_normal = mat3(view_inverse * model_inverse) * normal;
     }
+
+    fragment_color = color;
 }
