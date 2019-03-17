@@ -159,7 +159,7 @@ MeshViewerWidget::initializeGL()
     }
     program->release();
 
-    glClearColor(77.0f/255.0f, 105.0f/255.0f, 198.0f/255.0f, 1.0f);
+    glClearColor(252.0f/255.0f, 224.0f/255.0f, 239.0f/255.0f, 1.0f);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
     glDepthFunc(GL_LESS);
@@ -373,7 +373,7 @@ MeshViewerWidget::handle_key_events(QKeyEvent* event)
 
         QImage image(pixels, width(), height(), QImage::Format_RGBA8888);
         image = image.mirrored(false, true);
-        image = image.scaled(width()/4, height()/4, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+        image = image.scaled(2*width(), 2*height(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
         image.save("test.png", nullptr, 100);
 
         doneCurrent();
@@ -461,8 +461,10 @@ MeshViewerWidget::load_off_file(const std::string& str)
         {
             program->bind();
             {
+                float color = 183.0f/255.0f;
+
                 this->mesh->build(program);
-                this->mesh->use_unique_color(0.8f, 0.5f, 0.2f);
+                this->mesh->use_unique_color(color, color, color);
                 this->mesh->update_buffers(program);
             }
             program->release();

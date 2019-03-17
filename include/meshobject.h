@@ -8,6 +8,8 @@
 #include "drawableobject.h"
 
 struct MyTraits : public OpenMesh::DefaultTraits {
+    VertexAttributes(OpenMesh::Attributes::Normal);
+    FaceAttributes(OpenMesh::Attributes::Normal);
     HalfedgeAttributes(OpenMesh::Attributes::PrevHalfedge);
 };
 

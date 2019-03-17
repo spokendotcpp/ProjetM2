@@ -5,11 +5,12 @@
 MeshObject::MeshObject(const std::string& filename)
     :DrawableObject()
 {
-    mesh.request_face_normals();
-    mesh.request_vertex_normals();
-
     if( OpenMesh::IO::read_mesh(mesh, filename) ){
+        mesh.request_face_normals();
+        mesh.request_vertex_normals();
+
         normalize();
+
         mesh.update_face_normals();
         mesh.update_vertex_normals();
     }
@@ -42,6 +43,8 @@ MeshObject::build(QOpenGLShaderProgram* program)
     size_t i = 0;
     size_t j = 0;
 
+    float color = 183.0f/255.0f;
+
     for(const auto& cv_it: mesh.vertices()){
         /* const vertex iterator */
         normal = mesh.normal(cv_it);
@@ -49,7 +52,7 @@ MeshObject::build(QOpenGLShaderProgram* program)
         for(j=0; j < 3; ++j, ++i){
             normals[i] = normal[j];
             positions[i] = point[j];
-            colors[i] = 0.5f;
+            colors[i] = color;
         }
     }
 
