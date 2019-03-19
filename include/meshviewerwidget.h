@@ -2,6 +2,7 @@
 #define MESHVIEWERWIDGET_H
 
 #include <chrono>
+#include <random>
 
 #include <QApplication>
 #include <QScreen>
@@ -125,6 +126,8 @@ public:
     /* Reset view matrix to default */
     void reset_view();
 
+    inline Light* get_light() const { return light; }
+
     /* *********************************************** */
     /* STATIC METHODS */
     /* Difference between two high resolution clock time point as microseconds */
@@ -135,6 +138,8 @@ public:
 public slots:
     /* Load an OBJ file from disk to the viewer */
     void load_off_file(const std::string& str);
+    void draw_back_faces(bool mode);
+    void take_screenshots();
 
 /* Private methods */
 private:
@@ -146,6 +151,8 @@ private:
     void update_projection();
 
     void update_lap();
+
+    void draw_axis(QOpenGLShaderProgram* program);
 };
 
 #endif // MESHVIEWERWIDGET_H

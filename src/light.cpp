@@ -6,9 +6,11 @@ Light::Light()
      color(new QVector3D(1.0f, 1.0f, 1.0f)),
      ambient(0.5f),
      is_on(false),
+     fixed(false),
      uniform_location_position(-1),
      uniform_location_color(-1),
      uniform_location_ambient(-1),
+     uniform_location_fixed(-1),
      uniform_location_is_on(-1)
 {}
 
@@ -44,6 +46,13 @@ Light::set_ambient(float strength, int loc)
 {
     uniform_location_ambient = loc;
     return update_ambient(strength);
+}
+
+Light*
+Light::set_fixed(bool move, int loc)
+{
+    uniform_location_fixed = loc;
+    return update_move_ability(move);
 }
 
 Light*
@@ -87,6 +96,13 @@ Light::update_ambient(float strength)
     return this;
 }
 
+Light*
+Light::update_move_ability(bool move)
+{
+    fixed = move;
+    return this;
+}
+
 const QVector3D&
 Light::get_color() const
 {
@@ -111,6 +127,12 @@ Light::enabled() const
     return (is_on && (uniform_location_is_on >= 0));
 }
 
+bool
+Light::is_fixed() const
+{
+    return fixed;
+}
+
 /* Watchout !
  * GLSL compiler is allowed to optimize away any unused uniforms.
  * program->uniformLocation(<string>) returns -1 if it's the case.
@@ -124,34 +146,37 @@ Light::to_gpu(QOpenGLShaderProgram* program) const
         if( uniform_location_position >= 0 )
             program->setUniformValue(uniform_location_position, *position);
         else
-            std::cerr << "Failed to set uniform value `light_position`" << std::endl;
+            std::cerr << "Warning: uniform_location_position wasn't found into shader(s)." << std::endl;
 
         if( uniform_location_color >= 0 )
             program->setUniformValue(uniform_location_color, *color);
         else
-            std::cerr << "Failed to set uniform value `light_color`" << std::endl;
+            std::cerr << "Warning: uniform_location_color wasn't found into shader(s)." << std::endl;
 
         if( uniform_location_ambient >= 0 )
             program->setUniformValue(uniform_location_ambient, ambient);
         else
-            std::cerr << "Failed to set uniform value `light_ambient`" << std::endl;
+            std::cerr << "Warning: uniform_location_ambient wasn't found into shader(s)." << std::endl;
+
+        if( uniform_location_fixed >= 0 )
+            program->setUniformValue(uniform_location_fixed, fixed);
+        else
+            std::cerr << "Warning: uniform_location_fixed wasn't found into shader(s)." << std::endl;
     }
 }
 
 void
 Light::on(QOpenGLShaderProgram* program)
 {
-    if( uniform_location_is_on >= 0 ){
-        is_on = true;
+    is_on = true;
+    if( program && uniform_location_is_on >= 0 )
         program->setUniformValue(uniform_location_is_on, is_on);
-    }
 }
 
 void
 Light::off(QOpenGLShaderProgram* program)
 {
-    if( uniform_location_is_on >= 0 ){
-        is_on = false;
+    is_on = false;
+    if( program && uniform_location_is_on >= 0 )
         program->setUniformValue(uniform_location_is_on, is_on);
-    }
 }

@@ -150,6 +150,7 @@ MeshViewerWidget::initializeGL()
         light->set_position(0.0f, 200.0f, 100.0f, program->uniformLocation("light_position"))
              ->set_color(0.7f, 0.7f, 0.7f, program->uniformLocation("light_color"))
              ->set_ambient(0.4f, program->uniformLocation("light_ambient"))
+             ->set_fixed(true, program->uniformLocation("light_fixed"))
              ->enable(program->uniformLocation("light_on"));
 
         axis->build(program);
@@ -161,7 +162,6 @@ MeshViewerWidget::initializeGL()
 
     glClearColor(252.0f/255.0f, 224.0f/255.0f, 239.0f/255.0f, 1.0f);
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
     glDepthFunc(GL_LESS);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
@@ -186,32 +186,29 @@ MeshViewerWidget::resizeGL(int width, int height)
 void
 MeshViewerWidget::paintGL()
 {
+    // Wait refresh-rate setup by user before painting
     long mcs = MeshViewerWidget::microseconds_diff(Clock::now(), lap);
-
     if( mcs < frequency ){
         std::this_thread::sleep_for(
             std::chrono::microseconds(frequency - (mcs + 100))
         );
     }
 
-    update_lap();
+    update_lap(); // increment FPS counter
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     program->bind();
     {
         program->setUniformValue("smooth_on", smooth_on);
 
-        // in case user has modified light pos
+        // send light parameters to shaders
         light->to_gpu(program);
 
         program->setUniformValue("projection", projection);
         program->setUniformValue("view", view);
         program->setUniformValue("view_inverse", view.transposed().inverted());
 
-
-        light->off(program);            // turn off the light
-        axis->show(program, GL_LINES);  // draw axis
-        light->on(program);             // turn on the light
+        draw_axis(program);
 
         // In case user imported a mesh into the viewer, display it.
         if( mesh != nullptr ){
@@ -409,6 +406,23 @@ MeshViewerWidget::update_lap()
 }
 
 void
+MeshViewerWidget::draw_axis(QOpenGLShaderProgram* program)
+{
+    bool light_on = light->enabled();
+    if( light_on ) light->off(program);
+    axis->show(program, GL_LINES);
+    if( light_on ) light->on(program);
+}
+
+void
+MeshViewerWidget::draw_back_faces(bool mode)
+{
+    makeCurrent();
+    mode ? glDisable(GL_CULL_FACE) : glEnable(GL_CULL_FACE);
+    doneCurrent();
+}
+
+void
 MeshViewerWidget::smooth_render(bool on)
 {
     smooth_on = on;
@@ -461,14 +475,60 @@ MeshViewerWidget::load_off_file(const std::string& str)
         {
             program->bind();
             {
-                float color = 183.0f/255.0f;
-
                 this->mesh->build(program);
-                this->mesh->use_unique_color(color, color, color);
                 this->mesh->update_buffers(program);
             }
             program->release();
         }
         doneCurrent();
     }
+}
+
+void
+MeshViewerWidget::take_screenshots()
+{
+    makeCurrent();
+
+    std::random_device random_device;
+    std::mt19937 mt_generator(random_device());
+    std::uniform_real_distribution<float> degrees{-360.0f, 360.0f};
+    std::uniform_int_distribution<uint> axes{0, 1};
+
+    //for(size_t i=0; i < 10; ++i){
+        float degree = degrees(mt_generator);
+        float x = axes(mt_generator);
+        float y = axes(mt_generator);
+        float z = axes(mt_generator);
+
+        std::cerr << "Degree: " << degree << " | x: " << x << " | y: " << y << " | z: " << z << std::endl;
+
+        QMatrix4x4* random_rotation = new QMatrix4x4();
+        random_rotation->setToIdentity();
+
+        if( x != 0.0f || y != 0.0f || z != 0.0f )
+             random_rotation->rotate(degree, x, y, z);
+
+        rotation = *random_rotation;
+        update_view();
+        update();
+
+        long timestamp = Clock::now().time_since_epoch().count();
+
+        uchar* pixels = new uchar[ width() * height() * 4 ];
+        glReadPixels(0, 0, width(), height(), GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+
+        QImage* image = new QImage(pixels, width(), height(), QImage::Format_RGBA8888);
+        *image = image->mirrored(false, true);
+        *image = image->scaled(width(), height(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+
+        QString filename = "test/" + QString::number(timestamp) + ".jpg";
+        std::cerr << filename.toStdString() << std::endl;
+        image->save(filename, nullptr, 100);
+
+        delete image;
+        delete [] pixels;
+        delete random_rotation;
+    //}
+
+    doneCurrent();
 }

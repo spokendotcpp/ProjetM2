@@ -21,6 +21,7 @@ uniform bool wireframe_on;
 uniform vec3 wireframe_color;
 
 uniform bool smooth_on;
+uniform bool light_fixed;
 
 // To Fragment Shader
 out vec3 fragment_color;
@@ -37,17 +38,20 @@ void main()
         // vertex position into view space
         position_view  = vec3(view * model * vec4(position, 1.0f));
 
-        // light position into view space
-        //vec3 light_position_view = vec3(view * vec4(light_position, 1.0f));
-        vec3 light_position_view = light_position;
+        vec3 light_position_view;
 
+        if( light_fixed )
+            light_position_view = light_position;
+        else
+            light_position_view = vec3(view * vec4(light_position, 1.0f));
 
         // light_direction
         light_direction = light_position_view - position_view;
 
         // vertex normal into view
-        if( smooth_on )
+        if( smooth_on ){
             vertex_normal = mat3(view_inverse * model_inverse) * normal;
+        }
     }
 
     fragment_color = color;

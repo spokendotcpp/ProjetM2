@@ -46,13 +46,48 @@
       <property name="maximumSize">
        <size>
         <width>200</width>
-        <height>16777215</height>
+        <height>999999</height>
        </size>
       </property>
       <property name="title">
-       <string>Field Options</string>
+       <string>Options</string>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout">
+       <item alignment="Qt::AlignLeft|Qt::AlignVCenter">
+        <widget class="QCheckBox" name="cbox_light_fixed">
+         <property name="toolTip">
+          <string>When checked, the light will stay steady into the World.
+If not, the light will follow the rotation of the view.</string>
+         </property>
+         <property name="text">
+          <string>Fixed Light</string>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="cbox_light_enable">
+         <property name="text">
+          <string>Enable Light</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="cbox_cull_bfaces">
+         <property name="text">
+          <string>Cull Back-Faces</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="b_run_sequence">
+         <property name="text">
+          <string>Run Sequence</string>
+         </property>
+        </widget>
+       </item>
        <item>
         <spacer name="verticalSpacer">
          <property name="orientation">
@@ -117,29 +152,24 @@
      <height>30</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menu_render">
-    <property name="title">
-     <string>Re&amp;nder</string>
-    </property>
-    <widget class="QMenu" name="menu_smooth">
-     <property name="title">
-      <string>&amp;Smooth</string>
-     </property>
-     <addaction name="action_smooth"/>
-     <addaction name="action_flat"/>
-    </widget>
-    <addaction name="menu_smooth"/>
-   </widget>
    <widget class="QMenu" name="menuFile">
     <property name="title">
      <string>Fi&amp;le</string>
     </property>
-    <addaction name="actionLoadMesh"/>
+    <addaction name="action_load_mesh"/>
     <addaction name="separator"/>
     <addaction name="action_quit"/>
    </widget>
+   <widget class="QMenu" name="menuParameters">
+    <property name="title">
+     <string>Parameters</string>
+    </property>
+    <addaction name="actionColors"/>
+    <addaction name="actionLight"/>
+    <addaction name="actionSequence"/>
+   </widget>
    <addaction name="menuFile"/>
-   <addaction name="menu_render"/>
+   <addaction name="menuParameters"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionLoad_OBJ">
@@ -180,9 +210,24 @@
     <string>On/Off</string>
    </property>
   </action>
-  <action name="actionLoadMesh">
+  <action name="action_load_mesh">
    <property name="text">
     <string>Import Mesh</string>
+   </property>
+  </action>
+  <action name="actionColors">
+   <property name="text">
+    <string>Colors</string>
+   </property>
+  </action>
+  <action name="actionLight">
+   <property name="text">
+    <string>Light</string>
+   </property>
+  </action>
+  <action name="actionSequence">
+   <property name="text">
+    <string>Sequence</string>
    </property>
   </action>
  </widget>

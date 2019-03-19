@@ -3,7 +3,8 @@ cmake_minimum_required(VERSION 3.10)
 project(ProjetM2)
 set(exe_name "viewer")
 
-# Find includes in corresponding build directories
+# Automatically add the current source
+# and build directories to the include path.
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 # CMAKE QT OPTIONS
@@ -13,57 +14,7 @@ set(CMAKE_AUTORCC ON)
 
 set(OpenGL_GL_PREFERENCE "LEGACY")
 
-# PACKAGES REQUIRED
-find_package(
-    Qt5 REQUIRED COMPONENTS
-    Widgets
-    Core
-    Gui
-    OpenGL
-)
-
-find_package(OpenGL REQUIRED)
-
-############# OPENMESH ##############
-set(OPENMESH_STR "OpenMesh")
-set(OPENMESH_VER "8.0")
-set(OPENMESH_RELEASE "${OPENMESH_STR}-${OPENMESH_VER}")
-
-set(OPENMESH_URL "https://www.openmesh.org/media/Releases")
-
-set(OPENMESH_BIN "${CMAKE_CURRENT_BINARY_DIR}/${OPENMESH_RELEASE}")
-set(OPENMESH_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/${OPENMESH_RELEASE}")
-
-set(OPENMESH_LIB_CORE "${OPENMESH_DIR}/lib/libOpenMeshCore.so.${OPENMESH_VER}")
-set(OPENMESH_LIB_TOOLS "${OPENMESH_TOOLS}/lib/libOpenMeshTools.so.${OPENMESH_VER}")
-
-# Get the available number of processors
-include(ProcessorCount)
-ProcessorCount(NPROC)
-if(NOT NPROC EQUAL 0)
-    set(PROC_FLAG "-j${NPROC}")
-endif()
-
-# Download, configure, compile & install OpenMesh library
-include(ExternalProject)
-ExternalProject_Add(OpenMesh
-    URL ${OPENMESH_URL}/${OPENMESH_VER}/${OPENMESH_RELEASE}.tar.gz
-    BUILD_ALWAYS TRUE
-    CMAKE_GENERATOR "Unix Makefiles"
-    CMAKE_ARGS
-        "-DCMAKE_INSTALL_PREFIX=${OPENMESH_DIR}"
-        "-DCMAKE_BUILD_TYPE=Release"
-        "-DBUILD_APPS=OFF"
-    BINARY_DIR "${OPENMESH_BIN}"
-    BUILD_COMMAND make ${PROC_FLAG}
-    INSTALL_COMMAND make install
-    # Tell CMake Generator that we are going to create
-    # library files which will be included into the main target
-    BUILD_BYPRODUCTS
-        ${OPENMESH_LIB_CORE}
-        ${OPENMESH_LIB_TOOLS}
-)
-
+# PROJECT SOURCES & HEADERS
 set(SOURCES
     src/main.cpp
     src/mainwindow.cpp
@@ -90,6 +41,59 @@ set(UI_FORMS
     include/mainwindow.ui
 )
 
+# Get the available number of processors
+include(ProcessorCount)
+ProcessorCount(NPROC)
+if(NOT NPROC EQUAL 0)
+    set(PROC_FLAG "-j${NPROC}")
+endif()
+
+####### PACKAGES REQUIRED #######
+find_package(
+    Qt5 REQUIRED COMPONENTS
+    Widgets
+    Core
+    Gui
+    OpenGL
+)
+
+find_package(OpenGL REQUIRED)
+
+############# OPENMESH ##############
+set(OPENMESH_STR "OpenMesh")
+set(OPENMESH_VER "8.0")
+set(OPENMESH_RELEASE "${OPENMESH_STR}-${OPENMESH_VER}")
+
+set(OPENMESH_URL "https://www.openmesh.org/media/Releases")
+
+set(OPENMESH_BIN "${CMAKE_CURRENT_BINARY_DIR}/${OPENMESH_RELEASE}")
+set(OPENMESH_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/${OPENMESH_RELEASE}")
+
+set(OPENMESH_LIB_CORE "${OPENMESH_DIR}/lib/libOpenMeshCore.so.${OPENMESH_VER}")
+set(OPENMESH_LIB_TOOLS "${OPENMESH_DIR}/lib/libOpenMeshTools.so.${OPENMESH_VER}")
+
+# Download, configure, compile & install OpenMesh library
+include(ExternalProject)
+ExternalProject_Add(OpenMesh
+    URL ${OPENMESH_URL}/${OPENMESH_VER}/${OPENMESH_RELEASE}.tar.gz
+    BUILD_ALWAYS TRUE
+    CMAKE_GENERATOR "Unix Makefiles"
+    CMAKE_ARGS
+        "-DCMAKE_INSTALL_PREFIX=${OPENMESH_DIR}"
+        "-DCMAKE_BUILD_TYPE=Release"
+        "-DBUILD_APPS=OFF"
+    BINARY_DIR "${OPENMESH_BIN}"
+    BUILD_COMMAND make ${PROC_FLAG}
+    INSTALL_COMMAND make install
+    # Tell CMake Generator that we are going to create
+    # library files which will be included into the main target
+    BUILD_BYPRODUCTS
+        ${OPENMESH_LIB_CORE}
+        ${OPENMESH_LIB_TOOLS}
+)
+################################################################
+
+######### BUILD ##########
 # EXE + LINKING
 add_executable(
     ${exe_name}

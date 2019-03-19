@@ -43,8 +43,6 @@ MeshObject::build(QOpenGLShaderProgram* program)
     size_t i = 0;
     size_t j = 0;
 
-    float color = 183.0f/255.0f;
-
     for(const auto& cv_it: mesh.vertices()){
         /* const vertex iterator */
         normal = mesh.normal(cv_it);
@@ -52,7 +50,7 @@ MeshObject::build(QOpenGLShaderProgram* program)
         for(j=0; j < 3; ++j, ++i){
             normals[i] = normal[j];
             positions[i] = point[j];
-            colors[i] = color;
+            colors[i] = 0.5f;
         }
     }
 
@@ -62,6 +60,14 @@ MeshObject::build(QOpenGLShaderProgram* program)
         cfv_it = mesh.cfv_iter(cf_it);
         for(j=0; j < 3; ++j, ++i, ++cfv_it)
             indices[i] = static_cast<GLuint>(cfv_it->idx());
+    }
+
+
+    for(const auto& cf_it: mesh.faces()){
+        MyMesh::Normal n = mesh.normal(cf_it);
+        if( n[2] < 0.0f ){
+            std::cerr << "Counter clock-wise :/" << std::endl;
+        }
     }
 
     set_vertices_geometry(program->attributeLocation("position"), positions, indices);

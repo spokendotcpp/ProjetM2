@@ -74,7 +74,6 @@ private:
     void free_vertices_geometry();
     void free_vertices_colors();
     void free_vertices_normals();
-    void free_faces_normals();
     void free_buffers();
 
     bool create_buffers();

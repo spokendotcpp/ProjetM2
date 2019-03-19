@@ -3,15 +3,24 @@
 #include <QMessageBox>
 #include <QFileDialog>
 
+#include <thread>
+
 MainWindow::MainWindow(QWidget *parent):
     QMainWindow(parent), ui(new Ui::MainWindow())
 {
     ui->setupUi(this);
-    ui->viewer->set_frames_per_second(144);
+
+    size_t refresh_rate = size_t(QApplication::primaryScreen()->refreshRate());
+    ui->viewer->set_frames_per_second(refresh_rate);
 
     this->setWindowTitle("Viewer");
     this->resize(1280, 720);
     this->center();
+
+    // TODO: function which setup all default behavior
+    ui->cbox_light_fixed->setChecked(true);
+    ui->cbox_light_enable->setChecked(true);
+    ui->cbox_cull_bfaces->setChecked(false);
 
     connect_signals_and_slots();
 
@@ -49,7 +58,7 @@ MainWindow::keyPressEvent(QKeyEvent* event)
 
 void
 MainWindow::timerEvent(QTimerEvent*)
-{
+{   
     ui->fps->display(int(ui->viewer->get_computed_frames()));
     ui->viewer->reset_computed_frames();
 }
@@ -59,11 +68,7 @@ MainWindow::connect_signals_and_slots()
 {
     connect(ui->action_quit, &QAction::triggered, this, &QMainWindow::close);  // QUIT APP
 
-    // Render Flat or Smooth
-    connect(ui->action_flat, &QAction::triggered, this, [=](){ ui->viewer->smooth_render(false); });
-    connect(ui->action_smooth, &QAction::triggered, this, [=](){ ui->viewer->smooth_render(true); });
-
-    connect(ui->actionLoadMesh, &QAction::triggered, this, [=](){
+    connect(ui->action_load_mesh, &QAction::triggered, this, [=](){
         QString file = QFileDialog::getOpenFileName(
             this, "Load a Mesh file", "..", "Mesh files (*.off *.obj)",
             nullptr, QFileDialog::DontUseNativeDialog
@@ -71,5 +76,25 @@ MainWindow::connect_signals_and_slots()
 
         if( !file.isEmpty() )
             ui->viewer->load_off_file(file.toStdString());
+    });
+
+    // Fixed Light
+    connect(ui->cbox_light_fixed, &QCheckBox::toggled, this, [=](bool move){
+        ui->viewer->get_light()->update_move_ability(move);
+    });
+
+    // Enable Light
+    connect(ui->cbox_light_enable, &QCheckBox::toggled, this, [=](bool on){
+        Light* l = ui->viewer->get_light();
+        on ? l->on() : l->off();
+    });
+
+    // Cull Back-Faces
+    connect(ui->cbox_cull_bfaces, &QCheckBox::toggled, this, [=](bool val){
+        ui->viewer->draw_back_faces(!val);
+    });
+
+    connect(ui->b_run_sequence, &QPushButton::pressed, this, [=](){
+        ui->viewer->take_screenshots();
     });
 }
