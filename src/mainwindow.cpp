@@ -9,7 +9,6 @@ MainWindow::MainWindow(QWidget *parent):
     QMainWindow(parent), ui(new Ui::MainWindow())
 {
     ui->setupUi(this);
-
     size_t refresh_rate = size_t(QApplication::primaryScreen()->refreshRate());
     ui->viewer->set_frames_per_second(refresh_rate);
 
@@ -95,6 +94,7 @@ MainWindow::connect_signals_and_slots()
     });
 
     connect(ui->b_run_sequence, &QPushButton::pressed, this, [=](){
-        ui->viewer->take_screenshots();
+        ui->progressBar->setValue(0);
+        ui->viewer->take_screenshots(ui->progressBar);
     });
 }

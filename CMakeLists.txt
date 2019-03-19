@@ -61,21 +61,21 @@ find_package(OpenGL REQUIRED)
 
 ############# OPENMESH ##############
 set(OPENMESH_STR "OpenMesh")
-set(OPENMESH_VER "8.0")
-set(OPENMESH_RELEASE "${OPENMESH_STR}-${OPENMESH_VER}")
+set(OPENMESH_VERSION "8.0")
+set(OPENMESH_RELEASE "${OPENMESH_STR}-${OPENMESH_VERSION}")
 
 set(OPENMESH_URL "https://www.openmesh.org/media/Releases")
 
 set(OPENMESH_BIN "${CMAKE_CURRENT_BINARY_DIR}/${OPENMESH_RELEASE}")
 set(OPENMESH_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/${OPENMESH_RELEASE}")
 
-set(OPENMESH_LIB_CORE "${OPENMESH_DIR}/lib/libOpenMeshCore.so.${OPENMESH_VER}")
-set(OPENMESH_LIB_TOOLS "${OPENMESH_DIR}/lib/libOpenMeshTools.so.${OPENMESH_VER}")
+set(OPENMESH_LIB_CORE "${OPENMESH_DIR}/lib/libOpenMeshCore.so")
+set(OPENMESH_LIB_TOOLS "${OPENMESH_DIR}/lib/libOpenMeshTools.so")
 
 # Download, configure, compile & install OpenMesh library
 include(ExternalProject)
 ExternalProject_Add(OpenMesh
-    URL ${OPENMESH_URL}/${OPENMESH_VER}/${OPENMESH_RELEASE}.tar.gz
+    URL ${OPENMESH_URL}/${OPENMESH_VERSION}/${OPENMESH_RELEASE}.tar.gz
     BUILD_ALWAYS TRUE
     CMAKE_GENERATOR "Unix Makefiles"
     CMAKE_ARGS
@@ -117,7 +117,7 @@ target_compile_options(
 )
 
 # -I
-target_link_directories(
+target_include_directories(
     ${exe_name} PUBLIC
     "${OPENMESH_DIR}/include" #OPENMESH HEADERS
 )

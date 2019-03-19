@@ -102,6 +102,13 @@ If not, the light will follow the rotation of the view.</string>
         </spacer>
        </item>
        <item>
+        <widget class="QProgressBar" name="progressBar">
+         <property name="value">
+          <number>24</number>
+         </property>
+        </widget>
+       </item>
+       <item>
         <layout class="QHBoxLayout" name="horizontalLayout_2">
          <property name="topMargin">
           <number>0</number>

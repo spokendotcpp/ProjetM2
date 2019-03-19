@@ -485,7 +485,7 @@ MeshViewerWidget::load_off_file(const std::string& str)
 }
 
 void
-MeshViewerWidget::take_screenshots()
+MeshViewerWidget::take_screenshots(QProgressBar* pb)
 {
     makeCurrent();
 
@@ -494,41 +494,34 @@ MeshViewerWidget::take_screenshots()
     std::uniform_real_distribution<float> degrees{-360.0f, 360.0f};
     std::uniform_int_distribution<uint> axes{0, 1};
 
-    //for(size_t i=0; i < 10; ++i){
+    QMatrix4x4 random_rotation;
+
+    for(size_t i=0; i < 100; ++i){
         float degree = degrees(mt_generator);
         float x = axes(mt_generator);
         float y = axes(mt_generator);
         float z = axes(mt_generator);
 
-        std::cerr << "Degree: " << degree << " | x: " << x << " | y: " << y << " | z: " << z << std::endl;
-
-        QMatrix4x4* random_rotation = new QMatrix4x4();
-        random_rotation->setToIdentity();
+        random_rotation.setToIdentity();
 
         if( x != 0.0f || y != 0.0f || z != 0.0f )
-             random_rotation->rotate(degree, x, y, z);
+            random_rotation.rotate(degree, x, y, z);
 
-        rotation = *random_rotation;
+        rotation = random_rotation;
         update_view();
-        update();
 
         long timestamp = Clock::now().time_since_epoch().count();
 
-        uchar* pixels = new uchar[ width() * height() * 4 ];
-        glReadPixels(0, 0, width(), height(), GL_RGBA, GL_UNSIGNED_BYTE, pixels);
-
-        QImage* image = new QImage(pixels, width(), height(), QImage::Format_RGBA8888);
-        *image = image->mirrored(false, true);
-        *image = image->scaled(width(), height(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+        //*image = image->mirrored(false, true);
+        //*image = image->scaled(width(), height(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
 
         QString filename = "test/" + QString::number(timestamp) + ".jpg";
-        std::cerr << filename.toStdString() << std::endl;
-        image->save(filename, nullptr, 100);
 
-        delete image;
-        delete [] pixels;
-        delete random_rotation;
-    //}
+        QImage image = grabFramebuffer();
+        std::cerr << filename.toStdString() << std::endl;
+        image.save(filename, nullptr, 100);
+        pb->setValue(i+1);
+    }
 
     doneCurrent();
 }

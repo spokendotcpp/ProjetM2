@@ -8,7 +8,7 @@ int main(int argc, char *argv[])
 
     QSurfaceFormat format;
     format.setSwapInterval(0); // disable v-sync
-    format.setSwapBehavior(QSurfaceFormat::SwapBehavior::SingleBuffer);
+    format.setSwapBehavior(QSurfaceFormat::SwapBehavior::DoubleBuffer);
     format.setVersion(3, 0);
     format.setProfile(QSurfaceFormat::CoreProfile);
     format.setDepthBufferSize(24);

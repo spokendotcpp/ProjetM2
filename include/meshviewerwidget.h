@@ -22,6 +22,8 @@
 #include <QMatrix4x4>
 #include <QInputDialog>
 
+#include <QProgressBar>
+
 #include "axis.h"
 #include "light.h"
 #include "arcball.h"
@@ -139,7 +141,7 @@ public slots:
     /* Load an OBJ file from disk to the viewer */
     void load_off_file(const std::string& str);
     void draw_back_faces(bool mode);
-    void take_screenshots();
+    void take_screenshots(QProgressBar* pb);
 
 /* Private methods */
 private:
