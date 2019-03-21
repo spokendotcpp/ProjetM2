@@ -15,8 +15,8 @@ MeshViewerWidget::MeshViewerWidget(QWidget* parent)
 
     wireframe_on = true;
     fill_on = true;
-
     smooth_on = true;
+    axis_on = true;
 
     frames = 0;
     lap = Clock::now();
@@ -155,12 +155,10 @@ MeshViewerWidget::initializeGL()
 
         axis->build(program);
         axis->update_buffers(program);
-
-        program->setUniformValue("wireframe_color", QVector3D(1.0f, 0.0f, 0.0f));
     }
     program->release();
 
-    glClearColor(252.0f/255.0f, 224.0f/255.0f, 239.0f/255.0f, 1.0f);
+    use_default_bg_color();
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -208,7 +206,8 @@ MeshViewerWidget::paintGL()
         program->setUniformValue("view", view);
         program->setUniformValue("view_inverse", view.transposed().inverted());
 
-        draw_axis(program);
+        if( axis_on )
+            draw_axis(program);
 
         // In case user imported a mesh into the viewer, display it.
         if( mesh != nullptr ){
@@ -296,16 +295,16 @@ MeshViewerWidget::wheelEvent(QWheelEvent* event)
 void
 MeshViewerWidget::handle_key_events(QKeyEvent* event)
 {
-    float step = 0.5f;
+    float step = position.z()/(zFar - zNear);
 
     switch( event->key() ){
     case Qt::Key_Up :
-        position.setZ(position.z()+step);
+        position.setY(position.y()-step);
         update_view();
         break;
 
     case Qt::Key_Down :
-        position.setZ(position.z()-step);
+        position.setY(position.y()+step);
         update_view();
         break;
 
@@ -317,63 +316,6 @@ MeshViewerWidget::handle_key_events(QKeyEvent* event)
     case Qt::Key_Right :
         position.setX(position.x()-step);
         update_view();
-        break;
-
-    case Qt::Key_V :
-        default_view();
-        update_view();
-        break;
-
-    case Qt::Key_W :
-        makeCurrent();
-
-        GLint mode;
-        glGetIntegerv(GL_POLYGON_MODE, &mode);
-
-        program->bind();
-
-        if( mode == GL_FILL ){
-            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-            program->setUniformValue("wireframe_on", true);
-        }
-        else {
-            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-            program->setUniformValue("wireframe_on", false);
-        }
-
-        program->release();
-
-        doneCurrent();
-        break;
-
-    case Qt::Key_C :
-        makeCurrent();
-
-        glGetIntegerv(GL_CULL_FACE, &mode);
-
-        if( mode ){
-            glDisable(GL_CULL_FACE);
-        }
-        else {
-            glEnable(GL_CULL_FACE);
-        }
-
-        doneCurrent();
-        break;
-
-
-    case Qt::Key_S :
-        makeCurrent();
-
-        uchar* pixels = new uchar[ width() * height() * 4 ];
-        glReadPixels(0, 0, width(), height(), GL_RGBA, GL_UNSIGNED_BYTE, pixels);
-
-        QImage image(pixels, width(), height(), QImage::Format_RGBA8888);
-        image = image.mirrored(false, true);
-        image = image.scaled(2*width(), 2*height(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
-        image.save("test.png", nullptr, 100);
-
-        doneCurrent();
         break;
     }
 
@@ -415,11 +357,32 @@ MeshViewerWidget::draw_axis(QOpenGLShaderProgram* program)
 }
 
 void
+MeshViewerWidget::show_axis(bool mode)
+{
+    axis_on = mode;
+    update();
+}
+
+void
 MeshViewerWidget::draw_back_faces(bool mode)
 {
     makeCurrent();
     mode ? glDisable(GL_CULL_FACE) : glEnable(GL_CULL_FACE);
     doneCurrent();
+    update();
+}
+
+void
+MeshViewerWidget::draw_wireframe(bool mode)
+{
+    makeCurrent();
+
+    mode ?
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE):
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+    doneCurrent();
+    update();
 }
 
 void
@@ -485,8 +448,32 @@ MeshViewerWidget::load_off_file(const std::string& str)
 }
 
 void
-MeshViewerWidget::take_screenshots(QProgressBar* pb)
+MeshViewerWidget::update_mesh_color(float r, float g, float b)
 {
+    if( mesh == nullptr )
+        return;
+
+    makeCurrent();
+    program->bind();
+
+    mesh->use_unique_color(r, g, b);
+    mesh->update_buffers(program);
+
+    program->release();
+    doneCurrent();
+}
+
+void
+MeshViewerWidget::take_screenshots(int nimages, int quality, int format, QProgressBar* pb)
+{
+    const char* extension[2] = {
+        ".jpg", ".png"
+    };
+
+    if( format < 0 || format > 1 )
+        format = 0;
+
+    pb->setRange(0, nimages-1);
     makeCurrent();
 
     std::random_device random_device;
@@ -496,31 +483,34 @@ MeshViewerWidget::take_screenshots(QProgressBar* pb)
 
     QMatrix4x4 random_rotation;
 
-    for(size_t i=0; i < 100; ++i){
-        float degree = degrees(mt_generator);
-        float x = axes(mt_generator);
-        float y = axes(mt_generator);
-        float z = axes(mt_generator);
-
-        random_rotation.setToIdentity();
-
-        if( x != 0.0f || y != 0.0f || z != 0.0f )
-            random_rotation.rotate(degree, x, y, z);
-
-        rotation = random_rotation;
-        update_view();
-
+    for(int i=0; i < nimages; ++i){
         long timestamp = Clock::now().time_since_epoch().count();
 
         //*image = image->mirrored(false, true);
         //*image = image->scaled(width(), height(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
 
-        QString filename = "test/" + QString::number(timestamp) + ".jpg";
+        QString filename = "test/" + QString::number(timestamp) + extension[format];
 
         QImage image = grabFramebuffer();
-        std::cerr << filename.toStdString() << std::endl;
-        image.save(filename, nullptr, 100);
-        pb->setValue(i+1);
+        image.save(filename, nullptr, quality);
+        pb->setValue(i);
+
+        // the first image taken will not move from the current view position
+        // i.e: user want a specific position and just one screenshot, it's possible.
+
+        float degree = degrees(mt_generator);
+        float x, y, z;
+        do {
+            x = axes(mt_generator);
+            y = axes(mt_generator);
+            z = axes(mt_generator);
+        } while( x == 0.0f && y == 0.0f && z == 0.0f );
+
+        random_rotation.setToIdentity();
+        random_rotation.rotate(degree, x, y, z);
+
+        rotation = random_rotation * rotation;
+        update_view();
     }
 
     doneCurrent();

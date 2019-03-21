@@ -2,10 +2,10 @@
 
 #include <iostream>
 
-MeshObject::MeshObject(const std::string& filename)
-    :DrawableObject()
+MeshObject::MeshObject(const std::string& path)
+    :DrawableObject(), _name(""), _nb_faces(0), _nb_vertices(0)
 {
-    if( OpenMesh::IO::read_mesh(mesh, filename) ){
+    if( OpenMesh::IO::read_mesh(mesh, path) ){
         mesh.request_face_normals();
         mesh.request_vertex_normals();
 
@@ -13,9 +13,13 @@ MeshObject::MeshObject(const std::string& filename)
 
         mesh.update_face_normals();
         mesh.update_vertex_normals();
+
+        _name = filename_from_path(path);
+        _nb_faces = mesh.n_faces();
+        _nb_vertices = mesh.n_vertices();
     }
     else {
-        std::cerr << "Failed to read " << filename << std::endl;
+        std::cerr << "Failed to read " << path << std::endl;
     }
 }
 
@@ -23,6 +27,13 @@ MeshObject::~MeshObject()
 {
     mesh.release_face_colors();
     mesh.release_vertex_normals();
+}
+
+std::string
+MeshObject::filename_from_path(const std::string& path) const
+{
+    size_t pos = path.find_last_of("/\\");
+    return path.substr(pos+1);
 }
 
 bool
@@ -62,13 +73,13 @@ MeshObject::build(QOpenGLShaderProgram* program)
             indices[i] = static_cast<GLuint>(cfv_it->idx());
     }
 
-
+    /*
     for(const auto& cf_it: mesh.faces()){
         MyMesh::Normal n = mesh.normal(cf_it);
         if( n[2] < 0.0f ){
             std::cerr << "Counter clock-wise :/" << std::endl;
         }
-    }
+    }*/
 
     set_vertices_geometry(program->attributeLocation("position"), positions, indices);
     set_vertices_colors(program->attributeLocation("color"), colors);

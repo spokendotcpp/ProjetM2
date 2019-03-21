@@ -75,6 +75,7 @@ private:
     bool wireframe_on;
     bool fill_on;
     bool smooth_on;
+    bool axis_on;
 
 /* Public methods */
 public:
@@ -128,7 +129,20 @@ public:
     /* Reset view matrix to default */
     void reset_view();
 
+    inline void use_default_bg_color(){
+        makeCurrent();
+        glClearColor(252.0f/255.0f, 224.0f/255.0f, 239.0f/255.0f, 1.0f);
+    }
+
+    inline void set_bg_color(float r, float g, float b)
+    {
+        makeCurrent();
+        glClearColor(r, g, b, 1.0f);
+    }
+
+    /* Return the current scene Light */
     inline Light* get_light() const { return light; }
+    inline MeshObject* get_mesh() const { return mesh; }
 
     /* *********************************************** */
     /* STATIC METHODS */
@@ -141,7 +155,10 @@ public slots:
     /* Load an OBJ file from disk to the viewer */
     void load_off_file(const std::string& str);
     void draw_back_faces(bool mode);
-    void take_screenshots(QProgressBar* pb);
+    void take_screenshots(int nimages, int quality, int format, QProgressBar* pb);
+    void show_axis(bool mode);
+    void draw_wireframe(bool mode);
+    void update_mesh_color(float r, float g, float b);
 
 /* Private methods */
 private:

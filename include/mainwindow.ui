@@ -43,6 +43,12 @@
     </item>
     <item>
      <widget class="QGroupBox" name="verticalGroupBox">
+      <property name="minimumSize">
+       <size>
+        <width>200</width>
+        <height>0</height>
+       </size>
+      </property>
       <property name="maximumSize">
        <size>
         <width>200</width>
@@ -82,14 +88,21 @@ If not, the light will follow the rotation of the view.</string>
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="b_run_sequence">
+        <widget class="QCheckBox" name="cbox_wireframe">
          <property name="text">
-          <string>Run Sequence</string>
+          <string>Wireframe</string>
          </property>
         </widget>
        </item>
        <item>
-        <spacer name="verticalSpacer">
+        <widget class="QCheckBox" name="cbox_show_axis">
+         <property name="text">
+          <string>Show Axis</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_2">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>
@@ -101,10 +114,178 @@ If not, the light will follow the rotation of the view.</string>
          </property>
         </spacer>
        </item>
+       <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
+        <widget class="QLabel" name="label_5">
+         <property name="font">
+          <font>
+           <pointsize>14</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>Image</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QLabel" name="label_2">
+           <property name="maximumSize">
+            <size>
+             <width>200</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Format :</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="combobox_image_format">
+           <property name="minimumSize">
+            <size>
+             <width>90</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>90</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="layoutDirection">
+            <enum>Qt::LeftToRight</enum>
+           </property>
+           <property name="frame">
+            <bool>true</bool>
+           </property>
+           <item>
+            <property name="text">
+             <string>JPEG</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>PNG</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
+        <widget class="QCheckBox" name="cbox_default_quality">
+         <property name="text">
+          <string>Default Format Quality</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_5">
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QLabel" name="label_4">
+           <property name="text">
+            <string>Quality : </string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSpinBox" name="spinbox_quality">
+           <property name="acceptDrops">
+            <bool>true</bool>
+           </property>
+           <property name="accelerated">
+            <bool>true</bool>
+           </property>
+           <property name="maximum">
+            <number>100</number>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_4">
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QLabel" name="label_3">
+           <property name="text">
+            <string>Number :</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSpinBox" name="spinbox_image_number">
+           <property name="maximumSize">
+            <size>
+             <width>90</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="acceptDrops">
+            <bool>true</bool>
+           </property>
+           <property name="accelerated">
+            <bool>true</bool>
+           </property>
+           <property name="maximum">
+            <number>999999</number>
+           </property>
+           <property name="value">
+            <number>100</number>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QPushButton" name="b_run_sequence">
+         <property name="text">
+          <string>Run Sequence</string>
+         </property>
+        </widget>
+       </item>
        <item>
         <widget class="QProgressBar" name="progressBar">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
          <property name="value">
-          <number>24</number>
+          <number>0</number>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+         <property name="textVisible">
+          <bool>true</bool>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="invertedAppearance">
+          <bool>false</bool>
+         </property>
+         <property name="textDirection">
+          <enum>QProgressBar::TopToBottom</enum>
          </property>
         </widget>
        </item>
@@ -159,7 +340,7 @@ If not, the light will follow the rotation of the view.</string>
      <height>30</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menuFile">
+   <widget class="QMenu" name="menu_file">
     <property name="title">
      <string>Fi&amp;le</string>
     </property>
@@ -167,54 +348,65 @@ If not, the light will follow the rotation of the view.</string>
     <addaction name="separator"/>
     <addaction name="action_quit"/>
    </widget>
-   <widget class="QMenu" name="menuParameters">
+   <widget class="QMenu" name="menu_light">
     <property name="title">
-     <string>Parameters</string>
+     <string>Light</string>
     </property>
-    <addaction name="actionColors"/>
-    <addaction name="actionLight"/>
-    <addaction name="actionSequence"/>
+    <widget class="QMenu" name="menu_light_position">
+     <property name="title">
+      <string>Position</string>
+     </property>
+     <addaction name="action_light_position_defined"/>
+     <addaction name="actionDefault_3"/>
+    </widget>
+    <addaction name="action_light_color"/>
+    <addaction name="menu_light_position"/>
    </widget>
-   <addaction name="menuFile"/>
-   <addaction name="menuParameters"/>
+   <widget class="QMenu" name="menu_mesh">
+    <property name="title">
+     <string>Mesh</string>
+    </property>
+    <widget class="QMenu" name="menu_mesh_color">
+     <property name="title">
+      <string>Color</string>
+     </property>
+     <addaction name="action_mesh_color_defined"/>
+     <addaction name="action_mesh_color_default"/>
+    </widget>
+    <addaction name="menu_mesh_color"/>
+   </widget>
+   <widget class="QMenu" name="menu_viewer">
+    <property name="title">
+     <string>Viewer</string>
+    </property>
+    <widget class="QMenu" name="menu_framerate">
+     <property name="title">
+      <string>Framerate</string>
+     </property>
+     <addaction name="action_user_fps"/>
+     <addaction name="action_monitor_frequency"/>
+    </widget>
+    <widget class="QMenu" name="menu_background_color">
+     <property name="title">
+      <string>Background Color</string>
+     </property>
+     <addaction name="action_bg_color_defined"/>
+     <addaction name="action_bg_color_default"/>
+    </widget>
+    <addaction name="menu_background_color"/>
+    <addaction name="menu_framerate"/>
+    <addaction name="separator"/>
+    <addaction name="action_reset_view"/>
+   </widget>
+   <addaction name="menu_file"/>
+   <addaction name="menu_light"/>
+   <addaction name="menu_mesh"/>
+   <addaction name="menu_viewer"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
-  <action name="actionLoad_OBJ">
-   <property name="text">
-    <string>&amp;Load OBJ</string>
-   </property>
-  </action>
-  <action name="actionExit">
-   <property name="text">
-    <string>&amp;Exit</string>
-   </property>
-  </action>
-  <action name="actionLaplace_Beltrami">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>&amp;Laplace-Beltrami</string>
-   </property>
-  </action>
-  <action name="action_smooth">
-   <property name="text">
-    <string>&amp;Active</string>
-   </property>
-  </action>
-  <action name="action_flat">
-   <property name="text">
-    <string>&amp;Flat</string>
-   </property>
-  </action>
   <action name="action_quit">
    <property name="text">
     <string>Quit</string>
-   </property>
-  </action>
-  <action name="action_wireframe">
-   <property name="text">
-    <string>On/Off</string>
    </property>
   </action>
   <action name="action_load_mesh">
@@ -222,19 +414,54 @@ If not, the light will follow the rotation of the view.</string>
     <string>Import Mesh</string>
    </property>
   </action>
-  <action name="actionColors">
+  <action name="action_monitor_frequency">
    <property name="text">
-    <string>Colors</string>
+    <string>Monitor Frequency</string>
    </property>
   </action>
-  <action name="actionLight">
+  <action name="action_user_fps">
    <property name="text">
-    <string>Light</string>
+    <string>User Defined</string>
    </property>
   </action>
-  <action name="actionSequence">
+  <action name="action_light_color">
    <property name="text">
-    <string>Sequence</string>
+    <string>Color</string>
+   </property>
+  </action>
+  <action name="action_reset_view">
+   <property name="text">
+    <string>Reset View Position</string>
+   </property>
+  </action>
+  <action name="action_bg_color_defined">
+   <property name="text">
+    <string>User Defined</string>
+   </property>
+  </action>
+  <action name="action_bg_color_default">
+   <property name="text">
+    <string>Default</string>
+   </property>
+  </action>
+  <action name="action_mesh_color_defined">
+   <property name="text">
+    <string>User Defined</string>
+   </property>
+  </action>
+  <action name="action_mesh_color_default">
+   <property name="text">
+    <string>Default</string>
+   </property>
+  </action>
+  <action name="action_light_position_defined">
+   <property name="text">
+    <string>User Defined</string>
+   </property>
+  </action>
+  <action name="actionDefault_3">
+   <property name="text">
+    <string>Default</string>
    </property>
   </action>
  </widget>

@@ -18,7 +18,13 @@ typedef OpenMesh::TriMesh_ArrayKernelT<MyTraits> MyMesh;
 class MeshObject : public DrawableObject
 {
 private:
+    std::string _name;
+    size_t _nb_faces;
+    size_t _nb_vertices;
     MyMesh mesh;
+
+private:
+    std::string filename_from_path(const std::string& path) const;
 
 public:
     MeshObject(const std::string&);
@@ -26,6 +32,10 @@ public:
 
     bool build(QOpenGLShaderProgram* program) override;
     void normalize();
+
+    inline size_t nb_faces() const { return _nb_faces; }
+    inline size_t nb_vertices() const { return _nb_vertices; }
+    inline const std::string& name() const { return _name; }
 };
 
 #endif // MESHOBJECT_H
