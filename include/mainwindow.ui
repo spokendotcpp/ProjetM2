@@ -83,7 +83,14 @@ If not, the light will follow the rotation of the view.</string>
        <item>
         <widget class="QCheckBox" name="cbox_cull_bfaces">
          <property name="text">
-          <string>Cull Back-Faces</string>
+          <string>Cull BackFaces</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="cbox_flip_bfaces">
+         <property name="text">
+          <string>Flip BackFaces</string>
          </property>
         </widget>
        </item>

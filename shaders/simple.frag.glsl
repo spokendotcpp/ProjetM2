@@ -11,6 +11,8 @@ uniform bool light_on;
 
 uniform bool smooth_on;
 
+uniform bool flip_bfaces;
+
 out vec4 color;
 
 void main()
@@ -18,6 +20,9 @@ void main()
     if( light_on ){
         vec3 n = normalize( vertex_normal );
         vec3 l = normalize( light_direction );
+
+        if( flip_bfaces && !gl_FrontFacing )
+            n *= -1.0f;
 
         float cosTheta = max(dot(n, l), 0.0f);
 

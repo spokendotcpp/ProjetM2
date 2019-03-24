@@ -18,6 +18,8 @@ uniform float light_ambient;
 uniform bool light_on;
 uniform bool light_fixed;
 
+uniform bool flip_bfaces;
+
 // To Fragment Shader
 out vec3 fragment_color;
 out vec3 vertex_normal;
