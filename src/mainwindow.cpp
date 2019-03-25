@@ -7,14 +7,14 @@
 #include <thread>
 
 MainWindow::MainWindow(QWidget *parent):
-    QMainWindow(parent), ui(new Ui::MainWindow())
+    QMainWindow(parent), ui(new Ui::MainWindow()), save_directory(".")
 {
     ui->setupUi(this);
     size_t refresh_rate = size_t(QApplication::primaryScreen()->refreshRate());
     ui->viewer->set_frames_per_second(refresh_rate);
 
     this->setWindowTitle("Viewer");
-    this->resize(1280, 720);
+    this->resize(this->minimumWidth(), this->minimumHeight());
     this->center();
 
     // TODO: function which setup all default behavior
@@ -36,6 +36,13 @@ MainWindow::MainWindow(QWidget *parent):
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void
+MainWindow::resizeEvent(QResizeEvent*)
+{
+    ui->spinbox_width->setValue(ui->viewer->width());
+    ui->spinbox_height->setValue(ui->viewer->height());
 }
 
 void
@@ -82,14 +89,19 @@ MainWindow::connect_signals_and_slots()
         );
 
         if( !file.isEmpty() ){
-            ui->viewer->load_off_file(file.toStdString());
+            ui->viewer->load_mesh_file(file.toStdString());
             MeshObject* mesh = ui->viewer->get_mesh();
-            ui->statusBar->showMessage(
-                "Mesh: " + QString::fromStdString(mesh->name()) +
-                " | Faces: " + QString::number(mesh->nb_faces()) +
-                " | Vertices: " + QString::number(mesh->nb_vertices())
-            );
+            if( mesh != nullptr ){
+                /* update status bar */
+                ui->statusBar->showMessage(
+                    "Mesh: " + QString::fromStdString(mesh->name()) +
+                    " | Faces: " + QString::number(mesh->nb_faces()) +
+                    " | Vertices: " + QString::number(mesh->nb_vertices())
+                );
+            }
         }
+        else
+            ui->statusBar->showMessage("");
     });
 
     // Fixed Light
@@ -121,14 +133,29 @@ MainWindow::connect_signals_and_slots()
 
     // Run Screenshots Sequence
     connect(ui->b_run_sequence, &QPushButton::pressed, this, [=](){
+
+        QString dir = QFileDialog::getExistingDirectory(this, "Choose a save directory", save_directory);
+        if( dir.isEmpty() )
+            return;
+
+        save_directory = dir;
+
         int quality = -1;
         if( ui->spinbox_quality->isEnabled() )
             quality = ui->spinbox_quality->value();
 
+        Qt::AspectRatioMode aspect = Qt::IgnoreAspectRatio;
+        if( ui->cbox_ratio->isChecked() )
+            aspect = Qt::KeepAspectRatio;
+
         ui->viewer->take_screenshots(
+            ui->spinbox_width->value(),
+            ui->spinbox_height->value(),
+            aspect,
             ui->spinbox_image_number->value(),
             quality,
             ui->combobox_image_format->currentIndex(),
+            save_directory,
             ui->progressBar
         );
     });
@@ -143,8 +170,12 @@ MainWindow::connect_signals_and_slots()
     // User Defined framerate
     connect(ui->action_user_fps, &QAction::triggered, this, [=](){
         bool ok;
+
         int framerate = QInputDialog::getInt(
-            this, "Viewer framerate", "FPS:", 60, 30, 9999, 1, &ok);
+            this, "Viewer framerate", "FPS:",
+            60, 30, 9999, 1, &ok
+        );
+
         if( ok )
             ui->viewer->set_frames_per_second(size_t(framerate));
     });
@@ -193,7 +224,13 @@ MainWindow::connect_signals_and_slots()
         }
     });
 
+    // Saves or not the sequence w/ default image format quality
     connect(ui->cbox_default_quality, &QCheckBox::toggled, this, [=](bool val){
         ui->spinbox_quality->setEnabled(!val);
+    });
+
+    // Flip backfaces normals
+    connect(ui->cbox_flip_bfaces, &QCheckBox::toggled, this, [=](bool mode){
+        ui->viewer->flip_back_faces(mode);
     });
 }

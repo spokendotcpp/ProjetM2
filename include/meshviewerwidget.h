@@ -7,6 +7,9 @@
 #include <QApplication>
 #include <QScreen>
 #include <QSize>
+#include <QDir>
+#include <QDesktopServices>
+#include <QMessageBox>
 
 #include <QTimerEvent>
 
@@ -140,7 +143,6 @@ public:
         glClearColor(r, g, b, 1.0f);
     }
 
-    /* Return the current scene Light */
     inline Light* get_light() const { return light; }
     inline MeshObject* get_mesh() const { return mesh; }
 
@@ -152,13 +154,13 @@ public:
 
     /* ********************************************* */
 public slots:
-    /* Load an OBJ file from disk to the viewer */
-    void load_off_file(const std::string& str);
+    void load_mesh_file(const std::string& str);
     void draw_back_faces(bool mode);
-    void take_screenshots(int nimages, int quality, int format, QProgressBar* pb);
+    void take_screenshots(int w, int h, Qt::AspectRatioMode aspect, int nimages, int quality, int format, QString dir, QProgressBar* pb);
     void show_axis(bool mode);
     void draw_wireframe(bool mode);
     void update_mesh_color(float r, float g, float b);
+    void flip_back_faces(bool mode);
 
 /* Private methods */
 private:

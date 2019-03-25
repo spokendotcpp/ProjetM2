@@ -95,9 +95,9 @@ void
 MeshViewerWidget::default_view()
 {
     rotation = QMatrix4x4();
-    rotation.rotate(0.0f, 1.0f, 1.0f, 1.0f);
+    rotation.rotate(-90.0f, 1.0f, 0.0f, 0.0f);
 
-    position = QVector3D(0.0f, 0.0f, -2.0f);
+    position = QVector3D(0.0f, 0.0f, -1.5f);
     update_view();
 }
 
@@ -105,8 +105,8 @@ MeshViewerWidget::default_view()
 void
 MeshViewerWidget::default_projection()
 {
-    fov = 60.0f;
-    zNear = 0.1f;
+    fov = 45.0f;
+    zNear = 0.001f;
     zFar = 1000.0f;
     update_projection();
 }
@@ -147,8 +147,8 @@ MeshViewerWidget::initializeGL()
     program->bind();
     {
         light = new Light();
-        light->set_position(0.0f, 200.0f, 100.0f, program->uniformLocation("light_position"))
-             ->set_color(0.7f, 0.7f, 0.7f, program->uniformLocation("light_color"))
+        light->set_position(0.0f, 100.0f, 200.0f, program->uniformLocation("light_position"))
+             ->set_color(0.9f, 0.9f, 0.9f, program->uniformLocation("light_color"))
              ->set_ambient(0.4f, program->uniformLocation("light_ambient"))
              ->set_fixed(true, program->uniformLocation("light_fixed"))
              ->enable(program->uniformLocation("light_on"));
@@ -197,11 +197,10 @@ MeshViewerWidget::paintGL()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     program->bind();
     {
-        program->setUniformValue("smooth_on", smooth_on);
-
         // send light parameters to shaders
         light->to_gpu(program);
 
+        // push projection & views matrix to the GPU
         program->setUniformValue("projection", projection);
         program->setUniformValue("view", view);
         program->setUniformValue("view_inverse", view.transposed().inverted());
@@ -423,8 +422,9 @@ MeshViewerWidget::reset_view()
     update();
 }
 
+/* Load OBJ or OFF mesh from disk */
 void
-MeshViewerWidget::load_off_file(const std::string& str)
+MeshViewerWidget::load_mesh_file(const std::string& str)
 {
     MeshObject* mesh = new MeshObject(str);
 
@@ -448,6 +448,18 @@ MeshViewerWidget::load_off_file(const std::string& str)
 }
 
 void
+MeshViewerWidget::flip_back_faces(bool mode)
+{
+    makeCurrent();
+    program->bind();
+
+    program->setUniformValue("flip_bfaces", mode);
+
+    program->release();
+    doneCurrent();
+}
+
+void
 MeshViewerWidget::update_mesh_color(float r, float g, float b)
 {
     if( mesh == nullptr )
@@ -464,42 +476,50 @@ MeshViewerWidget::update_mesh_color(float r, float g, float b)
 }
 
 void
-MeshViewerWidget::take_screenshots(int nimages, int quality, int format, QProgressBar* pb)
+MeshViewerWidget::take_screenshots(int width, int height, Qt::AspectRatioMode aspect, int nimages, int quality, int format, QString dir, QProgressBar* pb)
 {
+    // Possible images formats
     const char* extension[2] = {
         ".jpg", ".png"
     };
 
+    // If format integer is not into boundaries, something is wrong, so go default
     if( format < 0 || format > 1 )
         format = 0;
 
+    // UI progress bar range
     pb->setRange(0, nimages-1);
-    makeCurrent();
 
+    // Create a random device + a random generator, then two uniform distributions
+    // one for angles in degrees which goes to -360.0 to 360.0
+    // one for rotation axes
     std::random_device random_device;
     std::mt19937 mt_generator(random_device());
     std::uniform_real_distribution<float> degrees{-360.0f, 360.0f};
     std::uniform_int_distribution<uint> axes{0, 1};
 
     QMatrix4x4 random_rotation;
+    float degree, x, y, z;
 
+    // Create a Lambda function to get timestamp when you want.
+    // @parameters : true -> milliseconds | false -> microseconds
+    auto timestamp = [](bool mode){
+        auto time = Clock::now().time_since_epoch();
+        return mode ?
+               std::chrono::duration_cast<std::chrono::milliseconds>(time).count():
+               std::chrono::duration_cast<std::chrono::microseconds>(time).count();
+    };
+
+    // Create a new save directory into the one choosen by user.
+    dir = dir + "/" + QString::number(timestamp(1))
+              + "_" + QString::number(width)
+              + "x" + QString::number(height);
+
+    QDir().mkdir(dir);
+
+    makeCurrent();
     for(int i=0; i < nimages; ++i){
-        long timestamp = Clock::now().time_since_epoch().count();
-
-        //*image = image->mirrored(false, true);
-        //*image = image->scaled(width(), height(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
-
-        QString filename = "test/" + QString::number(timestamp) + extension[format];
-
-        QImage image = grabFramebuffer();
-        image.save(filename, nullptr, quality);
-        pb->setValue(i);
-
-        // the first image taken will not move from the current view position
-        // i.e: user want a specific position and just one screenshot, it's possible.
-
-        float degree = degrees(mt_generator);
-        float x, y, z;
+        degree = degrees(mt_generator);
         do {
             x = axes(mt_generator);
             y = axes(mt_generator);
@@ -510,8 +530,24 @@ MeshViewerWidget::take_screenshots(int nimages, int quality, int format, QProgre
         random_rotation.rotate(degree, x, y, z);
 
         rotation = random_rotation * rotation;
-        update_view();
-    }
+        update_view(); // apply rotation to the view
 
+        // path/filename of the futur image (directory + timestamp + extension)
+        QString filename = dir + "/" + QString::number(timestamp(0)) + extension[format];
+
+        // Save current framebuffer to disk
+        QImage image = grabFramebuffer();
+        image = image.scaled(width, height, aspect, Qt::SmoothTransformation);
+        image.save(filename, nullptr, quality);
+        pb->setValue(i); // ++ UI progressBar
+    }
     doneCurrent();
+
+    // User Dialog
+    int ret = QMessageBox::question(
+        this, "View results", "Open directory:\n" + dir,
+        QMessageBox::Ok | QMessageBox::Cancel);
+
+    if( ret == QMessageBox::Ok )
+        QDesktopServices::openUrl("file://"+dir);
 }

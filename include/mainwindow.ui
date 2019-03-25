@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>941</width>
-    <height>600</height>
+    <width>1242</width>
+    <height>659</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -18,8 +18,8 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>600</width>
-    <height>500</height>
+    <width>1242</width>
+    <height>641</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -34,6 +34,12 @@
      <layout class="QVBoxLayout" name="left_layout">
       <item>
        <widget class="MeshViewerWidget" name="viewer">
+        <property name="minimumSize">
+         <size>
+          <width>1024</width>
+          <height>576</height>
+         </size>
+        </property>
         <property name="focusPolicy">
          <enum>Qt::StrongFocus</enum>
         </property>
@@ -125,7 +131,9 @@ If not, the light will follow the rotation of the view.</string>
         <widget class="QLabel" name="label_5">
          <property name="font">
           <font>
-           <pointsize>14</pointsize>
+           <pointsize>11</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
           </font>
          </property>
          <property name="text">
@@ -134,11 +142,78 @@ If not, the light will follow the rotation of the view.</string>
         </widget>
        </item>
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_3">
+        <widget class="QCheckBox" name="cbox_ratio">
+         <property name="text">
+          <string>Keep Aspect Ratio</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_7">
          <property name="topMargin">
           <number>0</number>
          </property>
          <item>
+          <widget class="QLabel" name="label_7">
+           <property name="text">
+            <string>Width :</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSpinBox" name="spinbox_width">
+           <property name="acceptDrops">
+            <bool>true</bool>
+           </property>
+           <property name="accelerated">
+            <bool>true</bool>
+           </property>
+           <property name="minimum">
+            <number>2</number>
+           </property>
+           <property name="maximum">
+            <number>99999</number>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_6">
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QLabel" name="label_6">
+           <property name="text">
+            <string>Height :</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSpinBox" name="spinbox_height">
+           <property name="acceptDrops">
+            <bool>true</bool>
+           </property>
+           <property name="accelerated">
+            <bool>true</bool>
+           </property>
+           <property name="minimum">
+            <number>2</number>
+           </property>
+           <property name="maximum">
+            <number>99999</number>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <item alignment="Qt::AlignVCenter">
           <widget class="QLabel" name="label_2">
            <property name="maximumSize">
             <size>
@@ -150,7 +225,7 @@ If not, the light will follow the rotation of the view.</string>
             <string>Format :</string>
            </property>
            <property name="alignment">
-            <set>Qt::AlignCenter</set>
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
            </property>
           </widget>
          </item>
@@ -188,7 +263,7 @@ If not, the light will follow the rotation of the view.</string>
          </item>
         </layout>
        </item>
-       <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
+       <item alignment="Qt::AlignVCenter">
         <widget class="QCheckBox" name="cbox_default_quality">
          <property name="text">
           <string>Default Format Quality</string>
@@ -200,13 +275,16 @@ If not, the light will follow the rotation of the view.</string>
          <property name="topMargin">
           <number>0</number>
          </property>
-         <item>
+         <item alignment="Qt::AlignVCenter">
           <widget class="QLabel" name="label_4">
+           <property name="layoutDirection">
+            <enum>Qt::LeftToRight</enum>
+           </property>
            <property name="text">
             <string>Quality : </string>
            </property>
            <property name="alignment">
-            <set>Qt::AlignCenter</set>
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
            </property>
           </widget>
          </item>
@@ -230,13 +308,13 @@ If not, the light will follow the rotation of the view.</string>
          <property name="topMargin">
           <number>0</number>
          </property>
-         <item>
+         <item alignment="Qt::AlignVCenter">
           <widget class="QLabel" name="label_3">
            <property name="text">
             <string>Number :</string>
            </property>
            <property name="alignment">
-            <set>Qt::AlignCenter</set>
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
            </property>
           </widget>
          </item>
@@ -266,6 +344,13 @@ If not, the light will follow the rotation of the view.</string>
        </item>
        <item>
         <widget class="QPushButton" name="b_run_sequence">
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <italic>false</italic>
+           <bold>true</bold>
+          </font>
+         </property>
          <property name="text">
           <string>Run Sequence</string>
          </property>
@@ -343,7 +428,7 @@ If not, the light will follow the rotation of the view.</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>941</width>
+     <width>1242</width>
      <height>30</height>
     </rect>
    </property>
@@ -354,20 +439,6 @@ If not, the light will follow the rotation of the view.</string>
     <addaction name="action_load_mesh"/>
     <addaction name="separator"/>
     <addaction name="action_quit"/>
-   </widget>
-   <widget class="QMenu" name="menu_light">
-    <property name="title">
-     <string>Light</string>
-    </property>
-    <widget class="QMenu" name="menu_light_position">
-     <property name="title">
-      <string>Position</string>
-     </property>
-     <addaction name="action_light_position_defined"/>
-     <addaction name="actionDefault_3"/>
-    </widget>
-    <addaction name="action_light_color"/>
-    <addaction name="menu_light_position"/>
    </widget>
    <widget class="QMenu" name="menu_mesh">
     <property name="title">
@@ -406,7 +477,6 @@ If not, the light will follow the rotation of the view.</string>
     <addaction name="action_reset_view"/>
    </widget>
    <addaction name="menu_file"/>
-   <addaction name="menu_light"/>
    <addaction name="menu_mesh"/>
    <addaction name="menu_viewer"/>
   </widget>
