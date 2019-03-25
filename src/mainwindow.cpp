@@ -134,7 +134,9 @@ MainWindow::connect_signals_and_slots()
     // Run Screenshots Sequence
     connect(ui->b_run_sequence, &QPushButton::pressed, this, [=](){
 
-        QString dir = QFileDialog::getExistingDirectory(this, "Choose a save directory", save_directory);
+        QString dir = QFileDialog::getExistingDirectory(
+                    this, "Choose a save directory", save_directory, QFileDialog::DontUseNativeDialog);
+
         if( dir.isEmpty() )
             return;
 
